@@ -6,14 +6,18 @@
 /*   By: mariannazhukova <mariannazhukova@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 11:58:31 by mariannazhu       #+#    #+#             */
-/*   Updated: 2024/03/19 10:25:26 by mariannazhu      ###   ########.fr       */
+/*   Updated: 2024/03/27 16:53:58 by mariannazhu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void child1_process(int f1, char *cmd1)
+void child1_process(int f1, char *cmd1, int end[])
 {
+    close(end[0]);
+    dup2(f1, 0); //switch file to input to input, donate data to 0 - stdin
+    close(f1);
+    dup2(end[1], 1);
     // add protection if dup2() < 0
     // dup2 close stdin, f1 becomes the new stdin
     // dup2(f1, STDIN_FILENO); // we want f1 to be execve() input
@@ -24,12 +28,16 @@ void child1_process(int f1, char *cmd1)
     //                     be able to finish its process
     // close(f1)
     // execve function for each possible path (see below)
-    // exit(EXIT_FAILURE);
+    exit(EXIT_FAILURE);
     ft_printf("Child\n");
 }
 
-void child2_process(int f2, char *cmd2)
+void child2_process(int f2, char *cmd2, int end[])
 {
+    close(end[1]);
+    dup2(f2, 1);
+    close(f2);
+    dup2(end[1],1);
     // int status;
     // waitpid(-1, &status, 0);
     // dup2(f2, ...); // f2 is the stdout
@@ -41,6 +49,8 @@ void child2_process(int f2, char *cmd2)
     ft_printf("Parent/n");
 }
 
+// Enviroment
+
 void pipex(int f1, int f2, char *cmd1, char *cmd2)
 {
     int end[2];
@@ -50,15 +60,15 @@ void pipex(int f1, int f2, char *cmd1, char *cmd2)
 
     pipe(end);
     child1 = fork();
-    if (child1 < 0)
+    if (child1 < 0) //if parent returns negative --> error
         return (perror("Fork: "));
-    if (child1 == 0)
-        child1_process(f1, cmd1);
+    if (child1 == 0) // child process returns 0 if it sucessfully runs
+        child1_process(f1, cmd1, end);
     child2 = fork();
     if (child2 < 0)
         return (perror("Fork: "));
     if (child2 == 0)
-        child2_process(f1, cmd2);
+        child2_process(f1, cmd2, end);
     close(end[0]);
     close(end[1]);
     waitpid(child1, &status, 0);
