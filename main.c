@@ -6,7 +6,7 @@
 /*   By: mariannazhukova <mariannazhukova@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 11:58:31 by mariannazhu       #+#    #+#             */
-/*   Updated: 2024/04/04 14:56:26 by mariannazhu      ###   ########.fr       */
+/*   Updated: 2024/04/04 15:25:36 by mariannazhu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,38 +41,53 @@ char *get_paths(char *cmd, char **envp)
 void exec_fun(char *argv, char **envp)
 {
     char **cmds = ft_split(argv, ' ');
-    char *path = get_paths(cmds[0], envp);
+    char *path = get_paths(*cmds, envp);
+    if (!cmds)
+    {
+        printf("Malloc failed!\n");
+        exit(EXIT_FAILURE);
+    }
     if (!path)
     {
+        free_split(cmds);
         perror("Path not found: ");
+        exit(EXIT_FAILURE);
     }
-    else if ((execve(path, cmds, envp) == -1))
+    if ((execve(path, cmds, envp) == -1))
     {
         perror("Execution error: ");
+        free_split(cmds);
+        exit(EXIT_FAILURE);
     }
+    perror("Execution error: ");
+    free_split(cmds);
+    exit(EXIT_FAILURE);
 }
 
 void baby1_process(int f1, char **argv, int *end, char **envp)
 {
     if (dup2(end[1], STDOUT_FILENO) < 0)
        return (perror("Dup2 error child1.1: "));
-    // close(STDOUT_FILENO); 
-    if (dup2(f1, STDERR_FILENO) < 0)
+    if (dup2(f1, STDIN_FILENO) < 0)
         return (perror("Dup2 error child1.2: "));
     close(end[0]);
+    close(end[1]);
     exec_fun(argv[2], envp);
-    // close(f1);
+    perror("Execution error: ");
+    exit(EXIT_FAILURE);
 }
 
 void baby2_process(int f2, char **argv, int end[], char **envp)
 {
     if (dup2(end[0], STDIN_FILENO) < 0)
         return (perror("Dup2 error child2.1: "));
-    // close(STDIN_FILENO);
     if (dup2(f2, STDOUT_FILENO) < 0)
         return (perror("Dup2 error child2.2: "));
     close(end[0]);
+    close(end[1]);
     exec_fun(argv[3], envp);
+    perror("Execution error: ");
+    exit(EXIT_FAILURE);
 }
 
 void pipex(int f1, int f2, char **argv, char **envp)
@@ -98,19 +113,21 @@ void pipex(int f1, int f2, char **argv, char **envp)
     waitpid(baby1, NULL, 0);
     waitpid(baby2, NULL, 0);
     printf("check\n");
+    close(f1);
+    close(f2);
 }
 
 
 int main(int argc, char **argv, char **envp)
 {
     if (argc != 5)
-        printf("Too few arguments!");
+        return (printf("Too few arguments!")); 
     int f1 = open(argv[1], O_RDONLY, 0644);
     int f2 = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (f1 < 0 || f2 < 0 || read(f1, 0, 0) < 0)
     {
         (perror("Error opening a file"));
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
     pipex(f1, f2, argv, envp); 
     return (0);
