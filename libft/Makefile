@@ -43,7 +43,8 @@ SRCS =  ft_calloc.c \
         printf/to_hexuplow.c \
         printf/to_int.c \
         printf/to_s.c \
-        printf/to_undecim.c
+        printf/to_undecim.c \
+        utils.c
 
 OBJS = $(SRCS:.c=.o)
 
