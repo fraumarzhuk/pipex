@@ -5,7 +5,7 @@ LIBFT_DIR = ./libft
 LIBS = -L$(LIBFT_DIR) -lft
 
 # Source files for pushswap
-PIPEX_SRCS = main.c
+PIPEX_SRCS = main.c pipex.c
 PIPEX_OBJS = $(PIPEX_SRCS:.c=.o)
 
 # 'all' target
