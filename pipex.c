@@ -6,7 +6,7 @@
 /*   By: mariannazhukova <mariannazhukova@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 16:06:54 by mariannazhu       #+#    #+#             */
-/*   Updated: 2024/04/05 17:58:05 by mariannazhu      ###   ########.fr       */
+/*   Updated: 2024/04/05 18:12:41 by mariannazhu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ char	*get_paths(char *cmd, char **envp)
 		free(cmd_path);
 		i++;
 	}
-	i = 0;
+	perror("Command not found: ");
 	free_split(paths);
 	exit(EXIT_FAILURE);
 	return (NULL);
