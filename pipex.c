@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mariannazhukova <mariannazhukova@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/04 15:27:59 by mariannazhu       #+#    #+#             */
-/*   Updated: 2024/04/04 15:45:49 by mariannazhu      ###   ########.fr       */
+/*   Created: 2024/04/05 16:06:54 by mariannazhu       #+#    #+#             */
+/*   Updated: 2024/04/05 16:53:10 by mariannazhu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,52 +45,44 @@ void	exec_fun(char *argv, char **envp)
 
 	cmds = ft_split(argv, ' ');
 	if (!cmds)
-	{
-		printf("Malloc failed!\n");
-		exit(EXIT_FAILURE);
-	}
+		pipex_error("Malloc failed!");
 	path = get_paths(*cmds, envp);
 	if (!path)
 	{
 		free_split(cmds);
-		perror("Path not found: ");
-		exit(EXIT_FAILURE);
+		pipex_error("Path not found!");
 	}
 	if ((execve(path, cmds, envp) == -1))
 	{
-		perror("Execution error: ");
 		free_split(cmds);
-		exit(EXIT_FAILURE);
+		free(path);
+		pipex_error("Execution error!");
 	}
-	perror("Execution error: ");
-	free_split(cmds);
 	exit(EXIT_FAILURE);
 }
 
 void	baby1_process(int f1, char **argv, int *end, char **envp)
 {
 	if (dup2(end[1], STDOUT_FILENO) < 0)
-		return (perror("Dup2 error child1.1: "));
+		pipex_error("Dup2 error!");
 	if (dup2(f1, STDIN_FILENO) < 0)
-		return (perror("Dup2 error child1.2: "));
+		pipex_error("Dup2 error!");
 	close(end[0]);
 	close(end[1]);
 	exec_fun(argv[2], envp);
-	perror("Execution error: ");
-	exit(EXIT_FAILURE);
+	pipex_error("Execution error!");
 }
 
 void	baby2_process(int f2, char **argv, int end[], char **envp)
 {
 	if (dup2(end[0], STDIN_FILENO) < 0)
-		return (perror("Dup2 error child2.1: "));
+		pipex_error("Dup2 error!");
 	if (dup2(f2, STDOUT_FILENO) < 0)
-		return (perror("Dup2 error child2.2: "));
+		pipex_error("Dup2 error!");
 	close(end[0]);
 	close(end[1]);
 	exec_fun(argv[3], envp);
-	perror("Execution error: ");
-	exit(EXIT_FAILURE);
+	pipex_error("Execution error!");
 }
 
 void	pipex(int f1, int f2, char **argv, char **envp)
@@ -100,21 +92,21 @@ void	pipex(int f1, int f2, char **argv, char **envp)
 	pid_t	baby2;
 
 	if (pipe(end) == -1)
-		perror("Error piping:");
+		pipex_error("Piping failed.");
 	baby1 = fork();
 	if (baby1 < 0)
-		return (perror("Forking1: "));
+		pipex_error("Forking failed.");
 	if (baby1 == 0)
 		baby1_process(f1, argv, end, envp);
 	baby2 = fork();
 	if (baby2 < 0)
-		return (perror("Forking2: "));
+	{
+		pipex_error("Forking failed.");
+	}
 	if (baby2 == 0)
 		baby2_process(f2, argv, end, envp);
 	close(end[0]);
 	close(end[1]);
 	waitpid(baby1, NULL, 0);
 	waitpid(baby2, NULL, 0);
-	close(f1);
-	close(f2);
 }
