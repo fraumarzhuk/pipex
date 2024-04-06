@@ -6,7 +6,7 @@
 /*   By: mariannazhukova <mariannazhukova@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/05 16:06:54 by mariannazhu       #+#    #+#             */
-/*   Updated: 2024/04/05 18:12:41 by mariannazhu      ###   ########.fr       */
+/*   Updated: 2024/04/06 15:37:03 by mariannazhu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@ char	*get_paths(char *cmd, char **envp)
 
 	while (ft_strncmp("PATH", *envp, 4))
 		envp++;
+	cmd_path = check_direct_command(cmd);
+	if (cmd_path)
+		return (cmd_path);
 	paths = ft_split(*envp + 5, ':');
 	i = 0;
 	while (paths[i])
@@ -33,9 +36,8 @@ char	*get_paths(char *cmd, char **envp)
 		free(cmd_path);
 		i++;
 	}
-	perror("Command not found: ");
 	free_split(paths);
-	exit(EXIT_FAILURE);
+	pipex_error("Command not found");
 	return (NULL);
 }
 
@@ -44,7 +46,7 @@ void	exec_fun(char *argv, char **envp)
 	char	**cmds;
 	char	*path;
 
-	cmds = ft_split(argv, ' ');
+	cmds = parse_command(argv);
 	if (!cmds)
 		pipex_error("Malloc failed!");
 	path = get_paths(*cmds, envp);
