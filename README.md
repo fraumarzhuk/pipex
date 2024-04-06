@@ -1,4 +1,4 @@
-Project Overview
+<h2>Project Overview</h2>
 The Pipex project involves creating a command-line program that mimics the behavior of the shell command pipeline (|). It takes two commands and redirects the output of the first command as the input of the second command, emulating the behavior of the shell's pipe operator.
 
 Key Features
