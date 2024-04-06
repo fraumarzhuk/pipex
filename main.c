@@ -6,7 +6,7 @@
 /*   By: mariannazhukova <mariannazhukova@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/18 11:58:31 by mariannazhu       #+#    #+#             */
-/*   Updated: 2024/04/05 18:13:27 by mariannazhu      ###   ########.fr       */
+/*   Updated: 2024/04/06 16:04:53 by mariannazhu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 void	pipex_error(char *str)
 {
-	ft_printf("%s\n", str);
+	write(STDERR_FILENO, str, ft_strlen(str));
+	write(STDERR_FILENO, "\n", 1);
 	exit(EXIT_FAILURE);
 }
 

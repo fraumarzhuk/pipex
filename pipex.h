@@ -6,7 +6,7 @@
 /*   By: mariannazhukova <mariannazhukova@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 15:46:49 by mariannazhu       #+#    #+#             */
-/*   Updated: 2024/04/05 15:38:48 by mariannazhu      ###   ########.fr       */
+/*   Updated: 2024/04/06 15:55:47 by mariannazhu      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,6 @@ void	baby1_process(int f1, char **argv, int *end, char **envp);
 void	baby2_process(int f2, char **argv, int end[], char **envp);
 void	pipex(int f1, int f2, char **argv, char **envp);
 void	pipex_error(char *str);
-
+char	**parse_command(char *cmd);
+char	*check_direct_command(char *cmd);
 #endif
